@@ -1,0 +1,72 @@
+plugins {
+    id 'java'
+    id 'org.springframework.boot' version '3.4.2'
+    id 'io.spring.dependency-management' version '1.1.7'
+}
+
+group = 'datasahi.mock'
+version = '0.1.0'
+
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(17)
+    }
+}
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    implementation 'org.springframework.boot:spring-boot-starter-web'
+    implementation 'org.springframework.boot:spring-boot-starter-data-redis'
+    implementation 'org.springframework.boot:spring-boot-starter-validation'
+
+    testImplementation 'org.springframework.boot:spring-boot-starter-test'
+    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+
+/*
+    implementation 'org.springframework.boot:spring-boot-starter-validation'
+    implementation 'io.lettuce.core:lettuce-core'
+*/
+}
+
+tasks.named('test') {
+    useJUnitPlatform()
+}
+
+tasks.register('bundleZip', Zip) {
+    dependsOn bootJar
+    from(layout.buildDirectory.dir("libs")) {
+        include '*.jar'
+        exclude '*plain.jar'
+    }
+    from('src/main/tools') {
+        include '*.*'
+    }
+    archiveFileName = "datasahi-mock-bundle-${version}.zip"
+    destinationDirectory = layout.buildDirectory.dir("distributions")
+}
+
+// Create tar.gz file
+tasks.register('bundleTar', Tar) {
+    dependsOn bootJar
+
+    from(layout.buildDirectory.dir("libs")) {
+        include '*.jar'
+        exclude '*plain.jar'
+    }
+    from('src/main/tools') {
+        include '*.*'
+    }
+    archiveFileName = "datasahi-mock-bundle-${version}.tar.gz"
+    destinationDirectory = layout.buildDirectory.dir("distributions")
+    compression = Compression.GZIP
+}
+
+tasks.register('bundleDistribution') {
+    group = 'distribution'
+    description = 'Creates distribution bundles containing build/libs jar and src/tools folder contents'
+    dependsOn bundleZip
+    dependsOn bundleTar
+}
