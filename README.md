@@ -38,3 +38,7 @@ This will simulate 100 records twice with a sleep of 10 milliseconds in between
 ```shell
 curl -X POST 'http://localhost:8082/lead/simulate' -H 'Content-Type: application/json' -d '{"batchSize": 100, "times": 2, "sleepMillis": 10}'
 ```
+
+### Using datasahi flow
+Before starting datasahi flow to transfer data from redis to a database, make sure to setup the lead_tracker table in the database.
+The schema files for mysql and sqlserver are in the distribution file.
